@@ -1,11 +1,5 @@
-name: Upload Python Package
-
-on:
-  release:
-    types: [published]
-
-permissions:
-  contents: read
+name: Build compiler executable
+on: [push, pull_request]
 
 jobs:
   deploy:
@@ -21,5 +15,5 @@ jobs:
     - name: Install package
       run: pip install .
 
-    - name: Upload executable
+    - name: Search for executable path
       run: where cpq.exe
