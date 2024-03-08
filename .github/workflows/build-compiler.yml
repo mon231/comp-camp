@@ -15,5 +15,8 @@ jobs:
     - name: Install package
       run: pip install .
 
-    - name: Search for executable path
-      run: where.exe cpq
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: compiler file
+        path: ${{ env.pythonLocation }}\Scripts\cpq.exe
