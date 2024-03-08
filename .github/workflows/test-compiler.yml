@@ -15,8 +15,5 @@ jobs:
     - name: Install package
       run: pip install .
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: compiler file
-        path: ${{ env.pythonLocation }}\Scripts\cpq.exe
+    - name: Test compiler help message
+      run: cpq -h
