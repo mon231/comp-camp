@@ -1,6 +1,6 @@
 from pathlib import Path
 from argparse import ArgumentParser
-from tokenizer import create_token_stream
+from .tokenizer import create_token_stream
 
 CPL_FILE_SUFFIX = '.ou'
 QUD_FILE_SUFFIX = '.qud'
