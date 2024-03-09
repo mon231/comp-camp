@@ -77,7 +77,7 @@ t_NUM = rf'{DIGIT}+(?:\.{DIGIT}*)?'
 def t_ID(t: LexToken):
     '[a-zA-Z][a-zA-Z0-9]*'
 
-    if t.value.upper() in CPL_TYPED_TOKENS['keywords']:
+    if t.value.islower() and (t.value.upper() in CPL_TYPED_TOKENS['keywords']):
         t.type = t.value.upper()
 
     return t
