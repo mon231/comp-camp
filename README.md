@@ -37,7 +37,7 @@ output_stmt -> OUTPUT '(' expression ')' ';'
 
 if_stmt -> IF '(' boolexpr ')' stmt ELSE stmt
 
-while_stmt -> WHILE ')' boolexpr '(' stmt
+while_stmt -> WHILE '(' boolexpr ')' stmt
 
 switch_stmt -> SWITCH '(' expression ')' '{' caselist DEFAULT ':' stmtlist '}'
 
