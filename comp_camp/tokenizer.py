@@ -1,3 +1,4 @@
+from sys import stderr
 from typing import Optional
 from ply.lex import lex, Lexer, LexToken
 
@@ -93,22 +94,11 @@ def t_ignore_comments(t: LexToken):
     r'\/\*[^(/*)]*\*\/'
 
     if not ((t.value.count('/*') == 1) and (t.value.count('*/') == 1)):
-        raise SyntaxError(f'Invalid comment at line {t.lexer.lineno}')
+        raise SyntaxError(f'Invalid comment at line {t.lexer.lineno}\nNested comments are not allowed!')
 
 
 def t_error(t: LexToken):
-    raise SyntaxError(f'Illegal character {t.value[0]!r} at line {t.lexer.lineno}')
+    print(f'Illegal character {t.value[0]!r} at line {t.lexer.lineno}', file=stderr)
 
-
-def get_next_token(lexer: Lexer) -> Optional[LexToken]:
-    return lexer.token()
-
-
-def find_token_category(token_type: str) -> str:
-    for token_category, category_types in CPL_TYPED_TOKENS.items():
-        if token_type in category_types:
-            return token_category
-
-    raise RuntimeError('Unexpected token category')
 
 lexer: Lexer = lex()
