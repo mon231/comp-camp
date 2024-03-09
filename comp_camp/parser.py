@@ -1,4 +1,5 @@
 import ply.yacc
+from sys import stderr
 from .tokenizer import tokens, lexer
 
 
@@ -190,5 +191,9 @@ def p_epsilon(p):
     pass
 
 
-# NOTE: Build the parser
-parser = ply.yacc.yacc()
+def p_error(p):
+    print(f'Unexpected parsing error occurred at line {p.lineno}!', file=stderr)
+
+
+# NOTE: Build the parser, log into stderr
+parser = ply.yacc.yacc(errorlog=ply.yacc.PlyLogger(stderr))
