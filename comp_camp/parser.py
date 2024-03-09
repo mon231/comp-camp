@@ -13,9 +13,9 @@ def p_declarations(p):
                     | epsilon'''
 
     if len(p) == 3:
-        p[0] = ('declarations', p[1], p[2])
+        p[0] = ('declarations', p[1][1] + [p[2]])
     else:
-        p[0] = ('declarations',)
+        p[0] = ('declarations', [])
 
 
 def p_declaration(p):
@@ -34,9 +34,9 @@ def p_idlist(p):
               | ID'''
 
     if len(p) == 4:
-        p[0] = ('idlist', p[1], p[3])
+        p[0] = ('idlist', p[1][1] + [p[3]])
     else:
-        p[0] = ('idlist', p[1])
+        p[0] = ('idlist', [p[1]])
 
 
 def p_stmt(p):
@@ -87,9 +87,9 @@ def p_caselist(p):
                 | epsilon'''
 
     if len(p) == 6:
-        p[0] = ('caselist', p[1], p[3], p[5])
+        p[0] = ('caselist', p[1][1] + [(p[3], p[5])])
     else:
-        p[0] = ('caselist',)
+        p[0] = ('caselist', [])
 
 
 def p_break_stmt(p):
@@ -107,9 +107,9 @@ def p_stmtlist(p):
                 | epsilon'''
 
     if len(p) == 3:
-        p[0] = ('stmtlist', p[1], p[2])
+        p[0] = ('stmtlist', p[1][1] + [p[2]])
     else:
-        p[0] = ('stmtlist',)
+        p[0] = ('stmtlist', [])
 
 
 def p_boolexpr(p):
@@ -117,7 +117,14 @@ def p_boolexpr(p):
                 | boolterm'''
 
     if len(p) == 4:
-        p[0] = ('boolexpr', p[1], p[2], p[3])
+        # NOTE: subtree root is OR
+
+        #          ||
+        #         /  \
+        #        /    \
+        #       /      \
+        #  boolexpr   boolterm
+        p[0] = ('boolexpr', p[2], p[1], p[3])
     else:
         p[0] = ('boolexpr', p[1])
 
@@ -127,7 +134,14 @@ def p_boolterm(p):
                 | boolfactor'''
 
     if len(p) == 4:
-        p[0] = ('boolterm', p[1], p[2], p[3])
+        # NOTE: subtree root is AND
+
+        #          &&
+        #         /  \
+        #        /    \
+        #       /      \
+        #   boolterm   boolfactor
+        p[0] = ('boolterm', p[2], p[1], p[3])
     else:
         p[0] = ('boolterm', p[1])
 
@@ -153,7 +167,15 @@ def p_boolfactor(p):
 def p_expression(p):
     '''expression : expression ADDOP term
                   | term'''
+
     if len(p) == 4:
+        # NOTE: subtree root is ADDOP
+
+        #          -
+        #         / \
+        #        /   \
+        #       /     \
+        # expression   term
         p[0] = ('expression', p[2], p[1], p[3])
     else:
         p[0] = ('expression', p[1])
@@ -164,6 +186,13 @@ def p_term(p):
             | factor'''
 
     if len(p) == 4:
+        # NOTE: subtree root is MULOPP
+
+        #          *
+        #         / \
+        #        /   \
+        #       /     \
+        #     term   factor
         p[0] = ('term', p[2], p[1], p[3])
     else:
         p[0] = ('term', p[1])
