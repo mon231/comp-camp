@@ -9,7 +9,7 @@ setuptools.setup(
     name = "comp_camp",
     version = "1.0.0",
     author = "Ariel Tubul",
-    install_requires = ['ply'],
+    install_requires = ['ply==3.11'],
     packages = setuptools.find_packages(),
     long_description=README_PATH.read_text(),
     long_description_content_type='text/markdown',
