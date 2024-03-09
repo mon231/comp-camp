@@ -1,7 +1,4 @@
-from sys import stderr
-from pathlib import Path
 from typing import Optional
-from argparse import ArgumentParser
 from ply.lex import lex, Lexer, LexToken
 
 
@@ -114,14 +111,4 @@ def find_token_category(token_type: str) -> str:
 
     raise RuntimeError('Unexpected token category')
 
-
-def create_token_stream(cpl_code: str):
-    try:
-        lexer: Lexer = lex()
-        lexer.input(cpl_code)
-
-        while token := get_next_token(lexer):
-            yield token
-    except Exception as e:
-        print(e, file=stderr)
-        raise
+lexer: Lexer = lex()
