@@ -1,5 +1,5 @@
-from typing import List, Dict
 from dataclasses import dataclass
+from typing import List, Dict, Union
 from .quad_translator import QuadTranslator, QuadTranslatable, QuadCode
 
 
@@ -81,9 +81,65 @@ class ConditionalCases:
 class Expression(QuadTranslatable):
     pass
 
-# TODO
 class BooleanExpression(QuadTranslatable):
+    def __init__(self, value: Union['BooleanTerm', 'BooleanOperationOR']):
+        self.value = value
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        return self.value.translate(quad_translator)
+
+class BooleanTerm(QuadTranslatable):
+    def __init__(self, value: Union['BooleanFactor', 'BooleanOperationAND']):
+        self.value = value
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        return self.value.translate(quad_translator)
+
+class BooleanFactor(QuadTranslatable):
     pass
+
+class BooleanOperationOR(QuadTranslatable):
+    def __init__(self, boolean_expression: BooleanExpression, boolean_term: BooleanTerm):
+        self.boolean_term = boolean_term
+        self.boolean_expression = boolean_expression
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        boolean_value_name = quad_translator.get_temp_boolean_name()
+        right_boolean_evaluation = self.boolean_term.translate(quad_translator)
+        left_boolean_evaluation = self.boolean_expression.translate(quad_translator)
+
+        opcodes = f'''
+        {right_boolean_evaluation.opcodes}
+        {left_boolean_evaluation.opcodes}
+
+        IADD {boolean_value_name} {left_boolean_evaluation.value_id} {right_boolean_evaluation.value_id}
+        '''
+
+        return QuadCode(opcodes=opcodes, value_id=boolean_value_name)
+
+class BooleanOperationAND(QuadTranslatable):
+    def __init__(self, boolean_term: BooleanTerm, boolean_factor: BooleanFactor):
+        self.boolean_term = boolean_term
+        self.boolean_factor = boolean_factor
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        boolean_value_name = quad_translator.get_temp_boolean_name()
+        label_do_not_change_value = quad_translator.get_temp_label_name()
+        right_boolean_evaluation = self.boolean_term.translate(quad_translator)
+        left_boolean_evaluation = self.boolean_factor.translate(quad_translator)
+
+        opcodes = f'''
+        {right_boolean_evaluation.opcodes}
+        {left_boolean_evaluation.opcodes}
+
+        INQL {boolean_value_name} {left_boolean_evaluation} 0
+        JMPZ {label_do_not_change_value} {boolean_value_name}
+
+        INQL {boolean_value_name} {right_boolean_evaluation} 0
+        {label_do_not_change_value};
+        '''
+
+        return QuadCode(opcodes=opcodes, value_id=boolean_value_name)
 # END   expressions #
 
 # START statements #

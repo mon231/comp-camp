@@ -125,16 +125,9 @@ def p_boolexpr(p):
                 | boolterm'''
 
     if len(p) == 4:
-        # NOTE: subtree root is OR
-
-        #          ||
-        #         /  \
-        #        /    \
-        #       /      \
-        #  boolexpr   boolterm
-        p[0] = ('boolexpr', p[2], p[1], p[3])
+        p[0] = BooleanExpression(value=BooleanOperationOR(p[1], p[3]))
     else:
-        p[0] = ('boolexpr', p[1])
+        p[0] = BooleanExpression(value=p[1])
 
 
 def p_boolterm(p):
@@ -142,16 +135,9 @@ def p_boolterm(p):
                 | boolfactor'''
 
     if len(p) == 4:
-        # NOTE: subtree root is AND
-
-        #          &&
-        #         /  \
-        #        /    \
-        #       /      \
-        #   boolterm   boolfactor
-        p[0] = ('boolterm', p[2], p[1], p[3])
+        p[0] = BooleanTerm(value=BooleanOperationAND(p[1], p[3]))
     else:
-        p[0] = ('boolterm', p[1])
+        p[0] = BooleanTerm(value=p[1])
 
 
 def p_boolfactor(p):
