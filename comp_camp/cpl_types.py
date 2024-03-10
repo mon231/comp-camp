@@ -96,7 +96,11 @@ class BooleanTerm(QuadTranslatable):
         return self.value.translate(quad_translator)
 
 class BooleanFactor(QuadTranslatable):
-    pass
+    def __init__(self, value: Union['BooleanOperationNOT', 'BooleanRelationOperation']):
+        self.value = value
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        return self.value.translate(quad_translator)
 
 class BooleanOperationOR(QuadTranslatable):
     def __init__(self, boolean_expression: BooleanExpression, boolean_term: BooleanTerm):
@@ -140,6 +144,31 @@ class BooleanOperationAND(QuadTranslatable):
         '''
 
         return QuadCode(opcodes=opcodes, value_id=boolean_value_name)
+
+class BooleanOperationNOT(QuadTranslatable):
+    def __init__(self, boolean_expression: BooleanExpression):
+        self.boolean_expression = boolean_expression
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        boolean_value_name = quad_translator.get_temp_boolean_name()
+        boolean_evaluation = self.boolean_expression.translate(quad_translator)
+
+        opcodes = f'''
+        {boolean_evaluation.opcodes}
+        IEQL {boolean_value_name} {boolean_evaluation.value_id} 0
+        '''
+
+        return QuadCode(opcodes=opcodes, value_id=boolean_value_name)
+
+class BooleanRelationOperation(QuadTranslatable):
+    def __init__(self, left_expression: Expression, right_expression: Expression, relation_operation: str):
+        self.left_expression = left_expression
+        self.right_expression = right_expression
+        self.relation_operation = relation_operation
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        # TODO: impl
+        raise NotImplementedError('TODO')
 # END   expressions #
 
 # START statements #

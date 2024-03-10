@@ -145,17 +145,9 @@ def p_boolfactor(p):
                   | expression RELOP expression'''
 
     if len(p) == 5:
-        p[0] = ('boolfactor', p[1], p[3])
+        p[0] = BooleanFactor(value=BooleanOperationNOT(p[3]))
     else:
-        # NOTE: subtree root is RELOP
-
-        #          <=
-        #         /  \
-        #        /    \
-        #       /      \
-        # expression   expression
-
-        p[0] = ('boolfactor', p[2], p[1], p[3])
+        p[0] = BooleanRelationOperation(left_expression=p[1], right_expression=p[3], relation_operation=p[2])
 
 
 def p_expression(p):
