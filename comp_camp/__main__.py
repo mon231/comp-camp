@@ -16,6 +16,8 @@ def cpl_to_quad(cpl_code: str) -> str:
     cpl_program: Program = parser.parse(cpl_code)
 
     quad_code = cpl_program.translate(quad_translator)
+    quad_code.finalize()
+
     return quad_code.opcodes
 
 
