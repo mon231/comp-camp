@@ -1540,3 +1540,6 @@ The following is information about that code language:
         break_stmt                     shift and go to state 21
         stmt_block                     shift and go to state 22
 </details>
+
+## Implementation
+In quad code, booleans are integers, where True means int!=0, and False means int==0
