@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Tuple
 from .quad_translator import QuadTranslator, QuadTranslatable, QuadCode
 
 
@@ -23,8 +23,14 @@ class Declarations(QuadTranslatable):
         self.declarations.append(declaration)
 
     def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        total_declared_variable_names = []
+
         for declaration in self.declarations:
             declaration.translate(quad_translator)
+            total_declared_variable_names += declaration.variable_ids
+
+        if len(set(total_declared_variable_names)) != len(total_declared_variable_names):
+            raise SyntaxError('Invalid re-declaration of variable')
 
         return QuadCode()
 # END   declarations #
@@ -77,9 +83,136 @@ class ConditionalCases:
 # END   cases #
 
 # START expressions #
-# TODO
-class Expression(QuadTranslatable):
+class NumericExpression(QuadTranslatable):
+    def __init__(self, value: Union['NumericTerm', 'NumericOperationADD', 'NumericOperationSUB']):
+        self.value = value
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        return self.value.translate(quad_translator)
+
+class NumericTerm(QuadTranslatable):
+    def __init__(self, value: Union['NumericFactor', 'NumericOperationMUL', 'NumericOperationDIV']):
+        self.value = value
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        return self.value.translate(quad_translator)
+
+class NumericFactor(QuadTranslatable):
+    # TODO: impl
     pass
+
+class NumericBinaryOperation(QuadTranslatable):
+    def __init__(self, left_expression: NumericExpression, right_expression: NumericExpression):
+        self.left_expression = left_expression
+        self.right_expression = right_expression
+
+    def assign_type_adjusted_expressions(self, quad_translator: QuadTranslator) -> str:
+        left_expression_evaluation = self.left_expression.translate(quad_translator)
+        right_expression_evaluation = self.right_expression.translate(quad_translator)
+
+        if quad_translator.get_variable_type(left_expression_evaluation.value_id) == quad_translator.get_variable_type(right_expression_evaluation.value_id):
+            return quad_translator.get_variable_type(left_expression_evaluation.value_id)
+
+        if quad_translator.get_variable_type(left_expression_evaluation.value_id) != 'float':
+            self.left_expression = NumericOperationCast(self.left_expression, 'float')
+
+        if quad_translator.get_variable_type(right_expression_evaluation.value_id) != 'float':
+            self.right_expression = NumericOperationCast(self.right_expression, 'float')
+
+        return 'float'
+
+class NumericOperationADD(NumericBinaryOperation):
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        adjusted_type = self.assign_type_adjusted_expressions(quad_translator)
+        value_name = quad_translator.get_temp_variable_name(adjusted_type)
+
+        left_boolean_evaluation = self.left_expression.translate(quad_translator)
+        right_boolean_evaluation = self.right_expression.translate(quad_translator)
+
+        add_opcode = 'IADD' if (adjusted_type == 'int') else 'RADD'
+        opcodes = f'''
+        {right_boolean_evaluation.opcodes}
+        {left_boolean_evaluation.opcodes}
+
+        {add_opcode} {value_name} {left_boolean_evaluation.value_id} {right_boolean_evaluation.value_id}
+        '''
+
+        return QuadCode(opcodes=opcodes, value_id=value_name)
+
+class NumericOperationSUB(NumericBinaryOperation):
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        adjusted_type = self.assign_type_adjusted_expressions(quad_translator)
+        value_name = quad_translator.get_temp_variable_name(adjusted_type)
+
+        left_boolean_evaluation = self.left_expression.translate(quad_translator)
+        right_boolean_evaluation = self.right_expression.translate(quad_translator)
+
+        add_opcode = 'ISUB' if (adjusted_type == 'int') else 'RSUB'
+        opcodes = f'''
+        {right_boolean_evaluation.opcodes}
+        {left_boolean_evaluation.opcodes}
+
+        {add_opcode} {value_name} {left_boolean_evaluation.value_id} {right_boolean_evaluation.value_id}
+        '''
+
+        return QuadCode(opcodes=opcodes, value_id=value_name)
+
+class NumericOperationMUL(NumericBinaryOperation):
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        adjusted_type = self.assign_type_adjusted_expressions(quad_translator)
+        value_name = quad_translator.get_temp_variable_name(adjusted_type)
+
+        left_boolean_evaluation = self.left_expression.translate(quad_translator)
+        right_boolean_evaluation = self.right_expression.translate(quad_translator)
+
+        add_opcode = 'IMLT' if (adjusted_type == 'int') else 'RMLT'
+        opcodes = f'''
+        {right_boolean_evaluation.opcodes}
+        {left_boolean_evaluation.opcodes}
+
+        {add_opcode} {value_name} {left_boolean_evaluation.value_id} {right_boolean_evaluation.value_id}
+        '''
+
+        return QuadCode(opcodes=opcodes, value_id=value_name)
+
+class NumericOperationDIV(NumericBinaryOperation):
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        adjusted_type = self.assign_type_adjusted_expressions(quad_translator)
+        value_name = quad_translator.get_temp_variable_name(adjusted_type)
+
+        left_boolean_evaluation = self.left_expression.translate(quad_translator)
+        right_boolean_evaluation = self.right_expression.translate(quad_translator)
+
+        add_opcode = 'IDIV' if (adjusted_type == 'int') else 'RDIV'
+        opcodes = f'''
+        {right_boolean_evaluation.opcodes}
+        {left_boolean_evaluation.opcodes}
+
+        {add_opcode} {value_name} {left_boolean_evaluation.value_id} {right_boolean_evaluation.value_id}
+        '''
+
+        return QuadCode(opcodes=opcodes, value_id=value_name)
+
+class NumericOperationCast(QuadTranslatable):
+    def __init__(self, numeric_expression: NumericExpression, target_type: str):
+        self.target_type = target_type
+        self.numeric_expression = numeric_expression
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        expression_evaluation_code = self.numeric_expression.translate(quad_translator)
+
+        if quad_translator.get_variable_type(expression_evaluation_code.value_id) == self.target_type:
+            return expression_evaluation_code
+
+        cast_opcode = 'ITOR' if self.target_type == 'float' else 'RTOI'
+        casted_expression_variable = quad_translator.get_temp_variable_name(self.target_type)
+
+        opcodes = f'''
+        {expression_evaluation_code.opcodes}
+        {cast_opcode} {casted_expression_variable} {expression_evaluation_code.value_id}
+        '''
+
+        return QuadCode(opcodes, casted_expression_variable)
 
 class BooleanExpression(QuadTranslatable):
     def __init__(self, value: Union['BooleanTerm', 'BooleanOperationOR']):
@@ -160,15 +293,41 @@ class BooleanOperationNOT(QuadTranslatable):
 
         return QuadCode(opcodes=opcodes, value_id=boolean_value_name)
 
-class BooleanRelationOperation(QuadTranslatable):
-    def __init__(self, left_expression: Expression, right_expression: Expression, relation_operation: str):
-        self.left_expression = left_expression
-        self.right_expression = right_expression
+class BooleanRelationOperation(NumericBinaryOperation):
+    def __init__(self, left_expression: NumericExpression, right_expression: NumericExpression, relation_operation: str):
+        super().__init__(left_expression, right_expression)
         self.relation_operation = relation_operation
 
     def translate(self, quad_translator: QuadTranslator) -> QuadCode:
-        # TODO: impl
-        raise NotImplementedError('TODO')
+        self.assign_type_adjusted_expressions(quad_translator)
+        evaluated_relop_variable = quad_translator.get_temp_boolean_name()
+
+        left_expression_evaluation = self.left_expression.translate(quad_translator)
+        right_expression_evaluation = self.right_expression.translate(quad_translator)
+
+        expressions_type = quad_translator.get_variable_type(left_expression_evaluation.value_id)
+
+        TYPE_TO_OPCODE_PREFIX = {
+            'int': 'I',
+            'float': 'R'
+        }
+
+        RELOP_TO_TYPELESS_OPCODE = {
+            '<': 'LSS',
+            '>': 'GRT',
+            '==': 'EQL',
+            '!=': 'NQL'
+        }
+
+        relop_opcode = TYPE_TO_OPCODE_PREFIX[expressions_type] + RELOP_TO_TYPELESS_OPCODE[self.relation_operation]
+
+        opcodes = f'''
+        {left_expression_evaluation.opcodes}
+        {right_expression_evaluation.opcodes}
+        {relop_opcode} {evaluated_relop_variable} {left_expression_evaluation.value_id} {right_expression_evaluation.value_id}
+        '''
+
+        return QuadCode(opcodes, evaluated_relop_variable)
 # END   expressions #
 
 # START statements #
@@ -201,7 +360,7 @@ class BreakStatement(Statement):
         raise NotImplementedError('Due to time constraints, the break statement is not implemented')
 
 class AssignmentStatement(Statement):
-    def __init__(self, id: str, expression: Expression):
+    def __init__(self, id: str, expression: NumericExpression):
         self.id = id
         self.expression = expression
 
@@ -283,7 +442,7 @@ class WhileStatement(Statement):
         return QuadCode(opcodes=opcodes)
 
 class SwitchStatement(Statement):
-    def __init__(self, expression: Expression, conditional_cases: ConditionalCases, default_case: DefaultCase):
+    def __init__(self, expression: NumericExpression, conditional_cases: ConditionalCases, default_case: DefaultCase):
         self.expression = expression
         self.default_case = default_case
         self.conditional_cases = conditional_cases
@@ -309,7 +468,6 @@ class SwitchStatement(Statement):
         if len(conditional_case_number_to_label) != len(label_to_conditional_case):
             raise SyntaxError('Invalid duplicate cases')
 
-        # TODO: use RELop equals
         compare_and_jump_case_opcodes = [
             f'''
             INQL {boolean_name} {expression_code.value_id} {case_number}
@@ -338,12 +496,12 @@ class SwitchStatement(Statement):
 
 # START AST #
 class Program:
-    def __init__(self, declarations: List[Declaration], statement_block: StatementBlock):
+    def __init__(self, declarations: Declarations, statement_block: StatementBlock):
         self.declarations = declarations
         self.statement_block = statement_block
 
     def translate(self, quad_translator: QuadTranslator) -> QuadCode:
-        for declaration in self.declarations:
+        for declaration in self.declarations.declarations:
             declaration.translate(quad_translator)
 
         return self.statement_block.translate(quad_translator)

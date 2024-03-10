@@ -147,7 +147,21 @@ def p_boolfactor(p):
     if len(p) == 5:
         p[0] = BooleanFactor(value=BooleanOperationNOT(p[3]))
     else:
-        p[0] = BooleanRelationOperation(left_expression=p[1], right_expression=p[3], relation_operation=p[2])
+        match p[2]:
+            case '<=':
+                p[0] = BooleanOperationOR(
+                    BooleanRelationOperation(left_expression=p[1], right_expression=p[3], relation_operation='<'),
+                    BooleanRelationOperation(left_expression=p[1], right_expression=p[3], relation_operation='==')
+                )
+
+            case '>=':
+                p[0] = BooleanOperationOR(
+                    BooleanRelationOperation(left_expression=p[1], right_expression=p[3], relation_operation='>'),
+                    BooleanRelationOperation(left_expression=p[1], right_expression=p[3], relation_operation='==')
+                )
+
+            case _:
+                p[0] = BooleanRelationOperation(left_expression=p[1], right_expression=p[3], relation_operation=p[2])
 
 
 def p_expression(p):
@@ -155,16 +169,14 @@ def p_expression(p):
                   | term'''
 
     if len(p) == 4:
-        # NOTE: subtree root is ADDOP
+        match p[2]:
+            case '-':
+                p[0] = NumericExpression(value=NumericOperationSUB(p[1], p[3]))
 
-        #          -
-        #         / \
-        #        /   \
-        #       /     \
-        # expression   term
-        p[0] = ('expression', p[2], p[1], p[3])
+            case '+':
+                p[0] = NumericExpression(value=NumericOperationADD(p[1], p[3]))
     else:
-        p[0] = ('expression', p[1])
+        p[0] = NumericExpression(value=p[1])
 
 
 def p_term(p):
@@ -172,16 +184,14 @@ def p_term(p):
             | factor'''
 
     if len(p) == 4:
-        # NOTE: subtree root is MULOPP
+        match p[2]:
+            case '*':
+                p[0] = NumericTerm(value=NumericOperationMUL(p[1], p[3]))
 
-        #          *
-        #         / \
-        #        /   \
-        #       /     \
-        #     term   factor
-        p[0] = ('term', p[2], p[1], p[3])
+            case '/':
+                p[0] = NumericTerm(value=NumericOperationDIV(p[1], p[3]))
     else:
-        p[0] = ('term', p[1])
+        p[0] = NumericTerm(value=p[1])
 
 
 def p_factor(p):
@@ -189,7 +199,7 @@ def p_factor(p):
               | CAST LPARENT expression RPARENT
               | ID
               | NUM'''
-
+    # TODO: impl
     match len(p):
         case 2:
             p[0] = ('factor', p[1])
