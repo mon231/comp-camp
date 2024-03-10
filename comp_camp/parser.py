@@ -1,11 +1,13 @@
 import ply.yacc
 from sys import stderr
+
+from .cpl_types import *
 from .tokenizer import tokens, lexer
 
 
 def p_program(p):
     '''program : declarations stmt_block'''
-    p[0] = ('program', p[1], p[2])
+    p[0] = Program(declarations=p[1], statement_block=p[2])
 
 
 def p_declarations(p):
@@ -13,20 +15,21 @@ def p_declarations(p):
                     | epsilon'''
 
     if len(p) == 3:
-        p[0] = ('declarations', p[1][1] + [p[2]])
+        p[1].add_declaration(p[2])
+        p[0] = p[1]
     else:
-        p[0] = ('declarations', [])
+        p[0] = Declarations()
 
 
 def p_declaration(p):
     '''declaration : idlist COLONS type SEMICOLON'''
-    p[0] = ('declaration', p[1], p[3])
+    p[0] = Declaration(p[1], p[3])
 
 
 def p_type(p):
     '''type : INT
             | FLOAT'''
-    p[0] = ('type', p[1])
+    p[0] = p[1]
 
 
 def p_idlist(p):
@@ -34,9 +37,9 @@ def p_idlist(p):
               | ID'''
 
     if len(p) == 4:
-        p[0] = ('idlist', p[1][1] + [p[3]])
+        p[0] = p[1] + [p[3]]
     else:
-        p[0] = ('idlist', [p[1]])
+        p[0] = [p[1]]
 
 
 def p_stmt(p):
@@ -49,32 +52,32 @@ def p_stmt(p):
             | break_stmt
             | stmt_block'''
 
-    p[0] = ('stmt', p[1])
+    p[0] = p[1]
 
 
 def p_assignment_stmt(p):
     '''assignment_stmt : ID ASSIGNMENT expression SEMICOLON'''
-    p[0] = ('assignment_stmt', p[1], p[3])
+    p[0] = AssignmentStatement(p[1], p[3])
 
 
 def p_input_stmt(p):
     '''input_stmt : INPUT LPARENT ID RPARENT SEMICOLON'''
-    p[0] = ('input_stmt', p[3])
+    p[0] = InputStatement(p[3])
 
 
 def p_output_stmt(p):
     '''output_stmt : OUTPUT LPARENT expression RPARENT SEMICOLON'''
-    p[0] = ('output_stmt', p[3])
+    p[0] = OutputStatement(p[3])
 
 
 def p_if_stmt(p):
     '''if_stmt : IF LPARENT boolexpr RPARENT stmt ELSE stmt'''
-    p[0] = ('if_stmt', p[3], p[5], p[7])
+    p[0] = IFStatement(p[3], p[5], p[7])
 
 
 def p_while_stmt(p):
     '''while_stmt : WHILE LPARENT boolexpr RPARENT stmt'''
-    p[0] = ('while_stmt', p[3], p[5])
+    p[0] = WhileStatement(p[3], p[5])
 
 
 def p_switch_stmt(p):
@@ -94,12 +97,12 @@ def p_caselist(p):
 
 def p_break_stmt(p):
     '''break_stmt : BREAK SEMICOLON'''
-    p[0] = ('break_stmt',)
+    p[0] = BreakStatement()
 
 
 def p_stmt_block(p):
     '''stmt_block : LBRACE stmtlist RBRACE'''
-    p[0] = ('stmt_block', p[2])
+    p[0] = StatementBlock(p[2])
 
 
 def p_stmtlist(p):
@@ -107,9 +110,10 @@ def p_stmtlist(p):
                 | epsilon'''
 
     if len(p) == 3:
-        p[0] = ('stmtlist', p[1][1] + [p[2]])
+        p[1].add_statement([2])
+        p[0] = p[1]
     else:
-        p[0] = ('stmtlist', [])
+        p[0] = StatementList()
 
 
 def p_boolexpr(p):
@@ -225,4 +229,4 @@ def p_error(p):
 
 
 # NOTE: Build the parser, log into stderr
-parser = ply.yacc.yacc(errorlog=ply.yacc.PlyLogger(stderr))
+parser = ply.yacc.yacc(errorlog=ply.yacc.PlyLogger(stderr), write_tables=False, debug=False)
