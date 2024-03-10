@@ -1,5 +1,5 @@
-import ply.yacc
 from sys import stderr
+from ply.yacc import GrammarError, PlyLogger, yacc
 
 from .cpl_types import *
 from .tokenizer import tokens, lexer
@@ -82,7 +82,7 @@ def p_while_stmt(p):
 
 def p_switch_stmt(p):
     '''switch_stmt : SWITCH LPARENT expression RPARENT LBRACE caselist DEFAULT COLONS stmtlist RBRACE'''
-    p[0] = ('switch_stmt', p[3], p[6], p[9])
+    p[0] = SwitchStatement(expression=p[3], conditional_cases=p[6], default_case=DefaultCase(statements=p[9]))
 
 
 def p_caselist(p):
@@ -90,9 +90,13 @@ def p_caselist(p):
                 | epsilon'''
 
     if len(p) == 6:
-        p[0] = ('caselist', p[1][1] + [(p[3], p[5])])
+        if not isinstance(p[3], int):
+            raise GrammarError('Invalid number-value for case (must be integer)')
+
+        p[1].add_case(ConditionalCase(number=p[3], statements=p[5]))
+        p[0] = p[1]
     else:
-        p[0] = ('caselist', [])
+        p[0] = ConditionalCases([])
 
 
 def p_break_stmt(p):
@@ -229,4 +233,4 @@ def p_error(p):
 
 
 # NOTE: Build the parser, log into stderr
-parser = ply.yacc.yacc(errorlog=ply.yacc.PlyLogger(stderr), write_tables=False, debug=False)
+parser = yacc(errorlog=PlyLogger(stderr), write_tables=False, debug=False)
