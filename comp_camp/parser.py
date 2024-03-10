@@ -114,7 +114,7 @@ def p_stmtlist(p):
                 | epsilon'''
 
     if len(p) == 3:
-        p[1].add_statement([2])
+        p[1].add_statement(p[2])
         p[0] = p[1]
     else:
         p[0] = StatementList()

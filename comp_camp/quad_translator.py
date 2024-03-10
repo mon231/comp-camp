@@ -6,7 +6,7 @@ from typing import List, Dict, Optional
 
 class QuadTranslator:
     def __init__(self):
-        self.__id_to_type: Dict[str, str]
+        self.__id_to_type: Dict[str, str] = dict()
 
     def declare_new_variable(self, variable_id: str, variable_type: str):
         if variable_id in self.__id_to_type:
