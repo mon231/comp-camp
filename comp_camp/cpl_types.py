@@ -98,8 +98,19 @@ class NumericTerm(QuadTranslatable):
         return self.value.translate(quad_translator)
 
 class NumericFactor(QuadTranslatable):
-    # TODO: impl
-    pass
+    def __init__(self, value: int | float | str):
+        self.value = value
+
+    def translate(self, quad_translator: QuadTranslator) -> QuadCode:
+        if isinstance(self.value, str):
+            return QuadCode(value_id=self.value)
+
+        if isinstance(self.value, int):
+            int_value = quad_translator.get_temp_variable_name('int')
+            return AssignmentStatement(int_value, self.value).translate(quad_translator)
+
+        float_value = quad_translator.get_temp_variable_name('float')
+        return AssignmentStatement(float_value, self.value).translate(quad_translator)
 
 class NumericBinaryOperation(QuadTranslatable):
     def __init__(self, left_expression: NumericExpression, right_expression: NumericExpression):
@@ -378,7 +389,7 @@ class AssignmentStatement(Statement):
             quad_translator.get_variable_type(self.id)
         )
 
-        return QuadCode(opcodes=f'{expression_evaluation_code.opcodes}\n{assignment_opcodes}')
+        return QuadCode(opcodes=f'{expression_evaluation_code.opcodes}\n{assignment_opcodes}', value_id=self.id)
 
     @staticmethod
     def __get_assignment_opcodes(
@@ -476,19 +487,19 @@ class SwitchStatement(Statement):
             for case_number, case_label in conditional_case_number_to_label.items()
         ]
 
-        default_case_opcodes = f'''
-        {self.default_case.statements.translate(quad_translator).opcodes}
-        JUMP {post_last_case_label_name}
-        '''
-
-        opcodes = f'''
-        {compare_and_jump_case_opcodes}
-        {default_case_opcodes}
-        {'\n'.join(
+        case_statements = '\n'.join(
             f'{label_name}: {conditional_case.statements.translate(quad_translator).opcodes}'
             for label_name, conditional_case
             in label_to_conditional_case.items()
-        )}
+        )
+
+        opcodes = f'''
+        {compare_and_jump_case_opcodes}
+
+        {self.default_case.statements.translate(quad_translator).opcodes}
+        JUMP {post_last_case_label_name}
+
+        {case_statements}
         {post_last_case_label_name}:'''
 
         return QuadCode(opcodes=opcodes)

@@ -199,16 +199,16 @@ def p_factor(p):
               | CAST LPARENT expression RPARENT
               | ID
               | NUM'''
-    # TODO: impl
+
     match len(p):
         case 2:
-            p[0] = ('factor', p[1])
+            p[0] = NumericFactor(p[1])
 
         case 4:
-            p[0] = ('factor', p[2])
+            p[0] = p[2]
 
         case 5:
-            p[0] = ('factor', p[1], p[3])
+            p[0] = NumericOperationCast(p[3], p[1].split('<')[1].split('>')[0])
 
 
 def p_epsilon(p):
