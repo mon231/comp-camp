@@ -14,7 +14,10 @@ class QuadTranslator:
 
         self.__id_to_type[variable_id] = variable_type
 
-    def get_variable_type(self, variable_id: str) -> str:
+    def get_variable_type(self, variable_id: str | int | float) -> str:
+        if isinstance(variable_id, (int, float)):
+            return type(variable_id).__name__
+
         if variable_id not in self.__id_to_type:
             raise NameError(f'variable named {variable_id} was not declared')
 
@@ -24,6 +27,8 @@ class QuadTranslator:
         variable_name = f'temp_variable_{uuid4().hex}'
         self.__id_to_type[variable_name] = variable_type
 
+        return variable_name
+
     def get_temp_label_name(self):
         return f'temp_label_{uuid4().hex}'
 
@@ -32,7 +37,7 @@ class QuadTranslator:
 
 
 class QuadCode:
-    def __init__(self, opcodes: Optional[str] = None, value_id: Optional[str] = None):
+    def __init__(self, opcodes: str = '', value_id: Optional[str | int | float] = None):
         self.opcodes = opcodes
         self.value_id = value_id
 

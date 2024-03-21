@@ -99,18 +99,16 @@ class NumericTerm(QuadTranslatable):
 
 class NumericFactor(QuadTranslatable):
     def __init__(self, value: int | float | str):
+        for possible_number_type in (int, float):
+            try:
+                value = possible_number_type(value)
+                break
+            except: pass
+
         self.value = value
 
     def translate(self, quad_translator: QuadTranslator) -> QuadCode:
-        if isinstance(self.value, str):
-            return QuadCode(value_id=self.value)
-
-        if isinstance(self.value, int):
-            int_value = quad_translator.get_temp_variable_name('int')
-            return AssignmentStatement(int_value, self.value).translate(quad_translator)
-
-        float_value = quad_translator.get_temp_variable_name('float')
-        return AssignmentStatement(float_value, self.value).translate(quad_translator)
+        return QuadCode(value_id=self.value)
 
 class NumericBinaryOperation(QuadTranslatable):
     def __init__(self, left_expression: NumericExpression, right_expression: NumericExpression):
@@ -355,16 +353,18 @@ class InputStatement(Statement):
                 return QuadCode(opcodes=f'RINP {self.id}')
 
 class OutputStatement(Statement):
-    def __init__(self, id: str):
-        self.id = id
+    def __init__(self, expression: NumericExpression):
+        self.expression = expression
 
     def translate(self, quad_translator: QuadTranslator) -> QuadCode:
-        match quad_translator.get_variable_type(self.id):
+        expression_evaluation_code = self.expression.translate(quad_translator)
+
+        match quad_translator.get_variable_type(expression_evaluation_code.value_id):
             case 'int':
-                return QuadCode(opcodes=f'IPRT {self.id}')
+                return QuadCode(opcodes=f'{expression_evaluation_code.opcodes}\nIPRT {expression_evaluation_code.value_id}')
 
             case 'float':
-                return QuadCode(opcodes=f'RPRT {self.id}')
+                return QuadCode(opcodes=f'{expression_evaluation_code.opcodes}\nRPRT {expression_evaluation_code.value_id}')
 
 class BreakStatement(Statement):
     def translate(self, quad_translator: QuadTranslator) -> QuadCode:
@@ -460,10 +460,10 @@ class SwitchStatement(Statement):
 
     def translate(self, quad_translator: QuadTranslator) -> QuadCode:
         boolean_name = quad_translator.get_temp_boolean_name()
-        expression_code = self.expression.translate(quad_translator)
+        expression_evaluation_code = self.expression.translate(quad_translator)
         post_last_case_label_name = quad_translator.get_temp_label_name()
 
-        if not expression_code.value_id or quad_translator.get_variable_type(expression_code.value_id) == 'int':
+        if not expression_evaluation_code.value_id or quad_translator.get_variable_type(expression_evaluation_code.value_id) != 'int':
             raise SyntaxError('expression for switch statement must be integer')
 
         label_to_conditional_case: Dict[str, ConditionalCase] = {
@@ -481,7 +481,7 @@ class SwitchStatement(Statement):
 
         compare_and_jump_case_opcodes = [
             f'''
-            INQL {boolean_name} {expression_code.value_id} {case_number}
+            INQL {boolean_name} {expression_evaluation_code.value_id} {case_number}
             JMPZ {case_label} {boolean_name}
             '''
             for case_number, case_label in conditional_case_number_to_label.items()
