@@ -52,7 +52,7 @@ class StatementList(Statement):
 
         for statement in self.statements:
             last_quad_code = statement.translate(quad_translator)
-            opcodes += last_quad_code.opcodes + '\n'
+            opcodes += f'{last_quad_code.opcodes}\n'
 
         return QuadCode(opcodes, last_quad_code.value_id)
 
