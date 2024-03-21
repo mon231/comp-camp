@@ -275,15 +275,14 @@ class BooleanOperationAND(QuadTranslatable):
         left_boolean_evaluation = self.boolean_factor.translate(quad_translator)
 
         opcodes = f'''
-        {right_boolean_evaluation.opcodes}
         {left_boolean_evaluation.opcodes}
+        {right_boolean_evaluation.opcodes}
 
         INQL {boolean_value_name} {left_boolean_evaluation} 0
         JMPZ {label_do_not_change_value} {boolean_value_name}
 
         INQL {boolean_value_name} {right_boolean_evaluation} 0
-        {label_do_not_change_value};
-        '''
+        {label_do_not_change_value}:'''
 
         return QuadCode(opcodes=opcodes, value_id=boolean_value_name)
 
@@ -421,7 +420,7 @@ class IFStatement(Statement):
 
         opcodes = f'''
         {condition_evaluation_code.opcodes}
-        JUMPZ {case_false_label_name} {condition_evaluation_code.value_id}
+        JMPZ {case_false_label_name} {condition_evaluation_code.value_id}
 
         {case_true_label_name}: {self.case_true.translate(quad_translator).opcodes}
         JUMP {post_case_false_label_name}
