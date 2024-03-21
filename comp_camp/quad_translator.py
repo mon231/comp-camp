@@ -49,7 +49,7 @@ class QuadCode:
         label_name_to_opcode_line: Dict[str, int] = dict()
 
         opcodes_with_no_empty_lines = re.sub('(\n\s*)+', '\n', f'{self.opcodes}\nHALT')
-        opcodes_with_fixed_labels = re.sub(':\n*', ':', opcodes_with_no_empty_lines)
+        opcodes_with_fixed_labels = re.sub('\s*:(\n?\s*)*', ':', opcodes_with_no_empty_lines)
 
         for opcode in opcodes_with_fixed_labels.splitlines():
             if not opcode.strip():
@@ -57,7 +57,7 @@ class QuadCode:
 
             if ':' in opcode:
                 label_name, opcode = opcode.split(':')
-                label_name_to_opcode_line[label_name] = len(finalized_opcodes_list)
+                label_name_to_opcode_line[label_name] = len(finalized_opcodes_list) + 1
 
             finalized_opcodes_list.append(opcode.strip())
 
