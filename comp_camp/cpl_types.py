@@ -54,7 +54,7 @@ class StatementList(Statement):
             last_quad_code = statement.translate(quad_translator)
             opcodes += f'{last_quad_code.opcodes}\n'
 
-        return QuadCode(opcodes, last_quad_code.value_id)
+        return QuadCode(opcodes=opcodes, value_id=last_quad_code.value_id)
 
 class StatementBlock(Statement):
     def __init__(self, statements: StatementList):
@@ -221,7 +221,7 @@ class NumericOperationCast(QuadTranslatable):
         {cast_opcode} {casted_expression_variable} {expression_evaluation_code.value_id}
         '''
 
-        return QuadCode(opcodes, casted_expression_variable)
+        return QuadCode(opcodes=opcodes, value_id=casted_expression_variable)
 
 class BooleanExpression(QuadTranslatable):
     def __init__(self, value: Union['BooleanTerm', 'BooleanOperationOR']):
@@ -336,7 +336,7 @@ class BooleanRelationOperation(NumericBinaryOperation):
         {relop_opcode} {evaluated_relop_variable} {left_expression_evaluation.value_id} {right_expression_evaluation.value_id}
         '''
 
-        return QuadCode(opcodes, evaluated_relop_variable)
+        return QuadCode(opcodes=opcodes, value_id=evaluated_relop_variable)
 # END   expressions #
 
 # START statements #
