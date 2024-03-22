@@ -28,8 +28,8 @@ jobs:
     - name: Prepare pyinstaller
       run: pip install pyinstaller
 
-    - name: Compile the compiler-launcher
-      run: pyinstaller launcher.py --onefile --name cpq
+    - name: Compile the compiler
+      run: pyinstaller compiler.py --onefile --name cpq
 
     - name: Upload dist artifacts
       uses: actions/upload-artifact@v4
