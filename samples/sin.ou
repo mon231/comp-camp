@@ -3,8 +3,8 @@
 /*  of the number entered (in degrees)                   */
 /*********************************************************/
 
-  float inp, cursine, prevsine, loopnum;
-  float power, sign;
+  inp, cursine, prevsine, loopnum: float;
+  power, sign: float;
 
 {
   input (inp);

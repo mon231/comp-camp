@@ -1,7 +1,7 @@
 /* test implicit/explicit type conversions */
 
-int  i, j;
-float a, b;
+i, j: int;
+a, b: float;
 
 {
    input (a);

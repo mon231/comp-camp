@@ -1,6 +1,6 @@
 /* Prints all prime numbers between 2 to 38 */
 
-int a, b, stop;
+a, b, stop: int;
 
 {
   output(2);
