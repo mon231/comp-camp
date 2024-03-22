@@ -32,8 +32,6 @@ PLUS = r'\+'
 MINUS = r'-'
 
 DIGIT = r'[0-9]'
-LETTER = r'[a-zA-Z]'
-LETTER_OR_DIGIT = r'[0-9a-zA-Z]'
 
 t_ignore = ' \t'
 tokens = [token for token_list in CPL_TYPED_TOKENS.values() for token in token_list]
