@@ -1,5 +1,4 @@
 from sys import stderr
-from typing import Optional
 from ply.lex import lex, Lexer, LexToken
 
 
