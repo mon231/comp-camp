@@ -1,4 +1,5 @@
-   /* should print 3  8   16.0   17.0  18.0 (or 19.0 if RTOI rounds up) */
+/* should print 3  8   16.0   17.0  18.0 (or 19.0 if RTOI rounds up) */
+/* TESTED BY ARIEL TUBUL's compiler */
 a, b: float;
 i, j: int;
 

@@ -1,4 +1,5 @@
 /* test implicit/explicit type conversions */
+/* TESTED BY ARIEL TUBUL's compiler */
 
 i, j: int;
 a, b: float;

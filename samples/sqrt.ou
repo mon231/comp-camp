@@ -1,4 +1,5 @@
 /* square root of a given number */
+/* TESTED BY ARIEL TUBUL's compiler */
 
    a, x, delta: float;
    stop: int;

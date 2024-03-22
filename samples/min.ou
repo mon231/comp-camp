@@ -1,4 +1,6 @@
 /* Min - Finding minimum between two numbers */
+/* TESTED BY ARIEL TUBUL's compiler */
+
 a, b: float;
 {
    input (a);

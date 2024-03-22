@@ -1,4 +1,5 @@
 /* Prints all prime numbers between 2 to 38 */
+/* TESTED BY ARIEL TUBUL's compiler */
 
 a, b, stop: int;
 

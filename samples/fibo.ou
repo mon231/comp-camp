@@ -1,4 +1,6 @@
 /* print fibonacci sequence */
+/* TESTED BY ARIEL TUBUL's compiler */
+
 a, b, c: int;
 {
     a = 0;

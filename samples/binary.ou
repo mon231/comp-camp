@@ -1,4 +1,5 @@
 /*convert from decimal to binary */
+/* TESTED BY ARIEL TUBUL's compiler */
 
 a, b: int;
 temp, ten: int;

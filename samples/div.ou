@@ -1,3 +1,5 @@
+/* TESTED BY ARIEL TUBUL's compiler */
+
 count, first: int;
 second: int;
 
