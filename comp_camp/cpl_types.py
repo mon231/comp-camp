@@ -278,10 +278,10 @@ class BooleanOperationAND(QuadTranslatable):
         {left_boolean_evaluation.opcodes}
         {right_boolean_evaluation.opcodes}
 
-        INQL {boolean_value_name} {left_boolean_evaluation} 0
+        INQL {boolean_value_name} {left_boolean_evaluation.value_id} 0
         JMPZ {label_do_not_change_value} {boolean_value_name}
 
-        INQL {boolean_value_name} {right_boolean_evaluation} 0
+        INQL {boolean_value_name} {right_boolean_evaluation.value_id} 0
         {label_do_not_change_value}:'''
 
         return QuadCode(opcodes=opcodes, value_id=boolean_value_name)
