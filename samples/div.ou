@@ -1,0 +1,15 @@
+int count, first;
+int second;
+
+{
+     input (first);
+     input (second);
+     count = 0;
+
+     while (first >= second) {
+       first = first-second;
+       count = count+1;
+     }
+
+     output(count);
+}
