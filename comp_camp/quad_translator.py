@@ -56,8 +56,13 @@ class QuadCode:
                 continue
 
             if ':' in opcode:
-                label_name, opcode = opcode.split(':')
-                label_name_to_opcode_line[label_name] = len(finalized_opcodes_list) + 1
+                opcode_parts = opcode.split(':')
+
+                opcode = opcode_parts[-1]
+                labels = opcode_parts[:-1]
+
+                for label_name in labels:
+                    label_name_to_opcode_line[label_name] = len(finalized_opcodes_list) + 1
 
             finalized_opcodes_list.append(opcode.strip())
 
