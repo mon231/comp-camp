@@ -1,14 +1,21 @@
 # comp-camp
 My python implementation of a byte-code compiler <br />
-GOAL: implement fully functional compiler, from the code-language CPL to the bytecode language QUAD
+GOAL: implement fully functional compiler, from the code-language CPL to the bytecode language QUAD <br />
+*NOTE* that WindowsDefender AV, for some reason, might decide that the compiler is a trojan-virus, <br />
+I guess it because we use `.ou` suffix for input files.. Simply turn of your AV or run it in inside a docker container. <br />
+The compiler can run on both linux/windows OS/containers.
 
-## How to run it?
-First of all, install the compiler (requires python version 3.11 or later, and `pip` package manager), <br />
+## How to compile the compiler?
+First of all, install the compiler py-package (requires python version 3.11 or later, and `pip` package manager), <br />
 Clone the sources and open command-line prompt (bash / powershell / cmd / ...), <br />
 Change directory (cd) into the folder where the sources are, <br />
-Install the package using your `pip` executable (`pip install .`) <br />
+Install the package using your `pip` executable (`pip install ply .`) <br />
 And use the generated `cpq` executable, which is now at your python's `Scripts` path. <br />
-To compile a `.ou` file, run `cpq <file name>`, then run it using your quad interpreter. <br />
+You can simply use the `cpq.exe` provided from the github-actions clean build
+
+## How to use the compiler?
+To compile an `.ou`-source file, run `cpq <filename.ou>`, <br />
+Then execute output file (`<filename.qud>`) using your quad interpreter. <br />
 A clone of the quad interpreter I was given can be found at `interpreter.py`.
 
 ## CPL (code language)
