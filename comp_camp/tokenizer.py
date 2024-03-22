@@ -91,7 +91,7 @@ def t_count_newlines(t: LexToken):
 
 
 def t_ignore_comments(t: LexToken):
-    r'\/\*[^(/*)]*\*\/'
+    r'\/\*.*\*\/'
 
     if not ((t.value.count('/*') == 1) and (t.value.count('*/') == 1)):
         raise SyntaxError(f'Invalid comment at line {t.lexer.lineno}\nNested comments are not allowed!')
