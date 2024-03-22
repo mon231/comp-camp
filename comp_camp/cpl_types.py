@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict, Union, Tuple
+from typing import List, Dict, Union
 from .quad_translator import QuadTranslator, QuadTranslatable, QuadCode
 
 
@@ -17,10 +17,10 @@ class Declaration(QuadTranslatable):
 
 class Declarations(QuadTranslatable):
     def __init__(self, declarations: List[Declaration] = []):
-        self.declarations = declarations
+        self.declarations = list(declarations)
 
     def add_declaration(self, declaration: Declaration):
-        self.declarations.append(declaration)
+        self.declarations += [declaration]
 
     def translate(self, quad_translator: QuadTranslator) -> QuadCode:
         total_declared_variable_names = []
@@ -41,10 +41,10 @@ class Statement(QuadTranslatable):
 
 class StatementList(Statement):
     def __init__(self, statements: List[Statement] = []):
-        self.statements = statements
+        self.statements = list(statements)
 
     def add_statement(self, statement: Statement):
-        self.statements.append(statement)
+        self.statements += [statement]
 
     def translate(self, quad_translator: QuadTranslator) -> QuadCode:
         opcodes = ''
@@ -79,7 +79,7 @@ class ConditionalCases:
     cases: List[ConditionalCase]
 
     def add_case(self, case: ConditionalCase):
-        self.cases.append(case)
+        self.cases += [case]
 # END   cases #
 
 # START expressions #
