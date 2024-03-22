@@ -2,6 +2,15 @@
 My python implementation of a byte-code compiler <br />
 GOAL: implement fully functional compiler, from the code-language CPL to the bytecode language QUAD
 
+## How to run it?
+First of all, install the compiler (requires python version 3.11 or later, and `pip` package manager), <br />
+Clone the sources and open command-line prompt (bash / powershell / cmd / ...), <br />
+Change directory (cd) into the folder where the sources are, <br />
+Install the package using your `pip` executable (`pip install .`) <br />
+And use the generated `cpq` executable, which is now at your python's `Scripts` path. <br />
+To compile a `.ou` file, run `cpq <file name>`, then run it using your quad interpreter. <br />
+A clone of the quad interpreter I was given can be found at `interpreter.py`.
+
 ## CPL (code language)
 The compiler should convert code from CPL to QUAD bytecode. <br />
 The following is information about that code language:
@@ -1541,5 +1550,46 @@ The following is information about that code language:
         stmt_block                     shift and go to state 22
 </details>
 
-## Implementation
-In quad code, booleans are integers, where True means int!=0, and False means int==0
+## Implementation notes
+In quad code, booleans are integers, where True means int!=0, and False means int==0 <br />
+The code was tested (compiled & interpreted) for each .ou file in the samples folder.
+
+### High level design
+We use `QuadTranslatable` classes for each statement/expression/..., <br />
+These classes represents the exact same types from the given grammer, <br />
+And the AST built by the parser contains nodes of these types. <br />
+These typed grammer rules defined at `cpl_types` module, and the parser at `parser` module. <br />
+The `QuadTranslatable` interface define the `translate` method that returns instance of `QuadCode`. <br />
+The `QuadCode` structure contains string of `opcodes` ('\n' separated) and `value_id`. <br />
+The `value_id` might be var-name or an immediate, thus is type is one of `str`, `int` and `float`. <br />
+The `value_id` represents the value returned from the translated opcodes.
+The `__main__` module calls the parser, who uses the tokenizer to build the AST, <br />
+Then "translates" the AST to quad byte code.
+
+### Module `tokenizer.py`
+This module contains list of valid tokens in the CPL language. <br />
+This module contain pretty simple code and yet documented, <br />
+Here we define token-classes (keyword, symbols, operators), as given in the language specs.
+
+### Module `parser.py`
+This module contains our parser, it uses given grammer rules and typed parsing classes to build the AST. <br />
+This module uses `yacc` to build the parser we'll use later, for complete AST building.
+
+### Module `cpl_types.py`
+This module contains types that represents statements, expressions, factors, terms, .. <br />
+Each type here might inherit the `QuadTranslatable` interface, then be constructed at the `parser` module, <br />
+Represent a node in the AST, and be translated to opcodes and have it's typed value.
+
+### Module `quad_translator.py`
+This module contains the `QuadTranslatable` interface and the `QuadCode` class, <br />
+Whose instances can be returned by the method `translate` of `QuadTranslatable`. <br />
+It also contains the helper class `QuadTranslator` that helps us translate AST nodes into quad-opcodes, <br />
+Define types variables, determine and query types during compilation and generate named-labels, <br />
+Who'll be later translated to code-lines using the `QuadCode`'s `finalize` method.
+
+### Module `__main__.py`
+This is the main module of the compiler, it parses cmdline args, <br />
+Opens the sources & output file, calls `parser` to build the AST, <br />
+Then translates the root node (`Program`) recursively. <br />
+It writes the resulted opcodes list into the output byte-code file, <br />
+Which can be executed using the `interpreter.py` script.
