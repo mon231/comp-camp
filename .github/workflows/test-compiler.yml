@@ -1,0 +1,32 @@
+name: Test compiler
+on: [push, pull_request]
+
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu, windows]
+
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+
+      with:
+        python-version: '3.10'
+
+    - name: Install the compiler package
+      run: pip install .
+
+    - name: Run pytest
+      uses: pavelzw/pytest-action@v2
+      with:
+        verbose: true
+        emoji: true
+        job-summary: true
+        click-to-expand: false
+        report-title: 'Compiler Test Report'
