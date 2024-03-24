@@ -1,0 +1,38 @@
+/* TESTED BY ARIEL TUBUL's compiler */
+a, b: int;
+c, d: float;
+
+{
+    c = 0;
+    d = 0;
+
+    input(a);
+    input(b);
+
+    if (a == b)
+    {
+        input(c);
+    }
+    else
+    {
+        input(d);
+    }
+
+    if (!(a == b))
+    {
+        output(d);
+    }
+    else
+    {
+        output(c);
+    }
+
+    if (a == c)
+    {
+        output(c);
+    }
+    else
+    {
+        output(a);
+    }
+}
