@@ -3,10 +3,10 @@ on: [push, pull_request]
 
 
 jobs:
-  build:
+  test:
     strategy:
       matrix:
-        os: [ubuntu, windows]
+        os: [ubuntu, windows, macos]
 
     runs-on: ${{ matrix.os }}-latest
 
