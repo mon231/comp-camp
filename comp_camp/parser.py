@@ -90,7 +90,9 @@ def p_caselist(p):
                 | epsilon'''
 
     if len(p) == 6:
-        if not isinstance(p[3], int):
+        try:
+            p[3] = int(p[3])
+        except:
             raise GrammarError('Invalid number-value for case (must be integer)')
 
         p[1].add_case(ConditionalCase(number=p[3], statements=p[5]))

@@ -467,7 +467,7 @@ class SwitchStatement(Statement):
 
         label_to_conditional_case: Dict[str, ConditionalCase] = {
             quad_translator.get_temp_label_name(): conditional_case
-            for conditional_case in self.conditional_cases
+            for conditional_case in self.conditional_cases.cases
         }
 
         conditional_case_number_to_label: Dict[int, str] = {
@@ -478,13 +478,13 @@ class SwitchStatement(Statement):
         if len(conditional_case_number_to_label) != len(label_to_conditional_case):
             raise SyntaxError('Invalid duplicate cases')
 
-        compare_and_jump_case_opcodes = [
+        compare_and_jump_case_opcodes = '\n'.join(
             f'''
             INQL {boolean_name} {expression_evaluation_code.value_id} {case_number}
             JMPZ {case_label} {boolean_name}
             '''
             for case_number, case_label in conditional_case_number_to_label.items()
-        ]
+        )
 
         case_statements = '\n'.join(
             f'{label_name}: {conditional_case.statements.translate(quad_translator).opcodes}'
