@@ -13,6 +13,39 @@ Install the package using your `pip` executable (`pip install ply .`) <br />
 And use the generated `cpq` executable, which is now at your python's `Scripts` path. <br />
 You can simply use the `cpq.exe` provided from the github-actions clean build
 
+## How to test the compiler?
+Simply `pip install pytest`, then `cd` into the sources dir, <br />
+And install project requirements (`pip install -r requirements.txt`) and run `pytest`. <br />
+The compilation of each `*.ou` file added to the `samples` folder will be tested:
+<details>
+    <summary>The pytest results from my windows machine</summary>
+
+```
+PS C:\Users\ArielTubul\Projects\comp-camp> pytest.exe -v
+============================================================== test session starts ===============================================================
+platform win32 -- Python 3.10.7, pytest-8.1.1, pluggy-1.4.0 -- C:\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\ArielTubul\Projects\comp-camp
+plugins: anyio-3.6.2
+collected 12 items
+
+test_samples.py::test_file_compilation[sample_source_file0] PASSED                                                                          [  8%]
+test_samples.py::test_file_compilation[sample_source_file1] PASSED                                                                          [ 16%]
+test_samples.py::test_file_compilation[sample_source_file2] PASSED                                                                          [ 25%]
+test_samples.py::test_file_compilation[sample_source_file3] PASSED                                                                          [ 33%]
+test_samples.py::test_file_compilation[sample_source_file4] PASSED                                                                          [ 41%]
+test_samples.py::test_file_compilation[sample_source_file5] PASSED                                                                          [ 50%]
+test_samples.py::test_file_compilation[sample_source_file6] PASSED                                                                          [ 58%]
+test_samples.py::test_file_compilation[sample_source_file7] PASSED                                                                          [ 66%]
+test_samples.py::test_file_compilation[sample_source_file8] PASSED                                                                          [ 75%]
+test_samples.py::test_file_compilation[sample_source_file9] PASSED                                                                          [ 83%]
+test_samples.py::test_file_compilation[sample_source_file10] PASSED                                                                         [ 91%]
+test_samples.py::test_file_compilation[sample_source_file11] PASSED                                                                         [100%]
+
+=============================================================== 12 passed in 0.25s ===============================================================
+```
+</details>
+
 ## How to use the compiler?
 To compile an `.ou`-source file, run `cpq <filename.ou>`, <br />
 Then execute output file (`<filename.qud>`) using your quad interpreter. <br />
