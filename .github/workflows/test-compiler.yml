@@ -20,7 +20,7 @@ jobs:
         python-version: '3.10'
 
     - name: Install the compiler package and pytest deps
-      run: pip install . pytest
+      run: pip install . pytest pytest-emoji pytest-md
 
     - name: Run pytest
       uses: pavelzw/pytest-action@v2
