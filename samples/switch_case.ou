@@ -1,0 +1,20 @@
+/* TESTED BY ARIEL TUBUL's compiler */
+a: int;
+
+{
+    input(a);
+
+    switch(a)
+    {
+        case 1:
+            a = a * 12;
+
+        case 2:
+            a = a * 6;
+
+        default:
+            a = 0;
+    }
+
+    output(a);
+}
