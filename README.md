@@ -2,7 +2,7 @@
 My python implementation of a byte-code compiler <br />
 GOAL: implement fully functional compiler, from the code-language CPL to the bytecode language QUAD <br />
 *NOTE* that WindowsDefender AV, for some reason, might decide that the compiler is a trojan-virus, <br />
-I guess it because we use `.ou` suffix for input files.. Simply turn of your AV or run it in inside a docker container. <br />
+I guess it because we use `.ou` suffix for input files.. Simply turn off your AV or use the compiler inside a docker container. <br />
 The compiler can run on both linux/windows OS/containers.
 
 ## How to compile the compiler?
